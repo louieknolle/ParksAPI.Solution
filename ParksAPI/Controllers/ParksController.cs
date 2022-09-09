@@ -22,7 +22,7 @@ namespace ParksAPI.Controllers
 
     // GET api/Parks
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Park>>> Get(string name, string stateLocation)
+    public async Task<ActionResult<IEnumerable<Park>>> Get(string name, string location)
     {
       var query = _db.Parks.AsQueryable();
 
@@ -31,9 +31,9 @@ namespace ParksAPI.Controllers
         query = query.Where(entry => entry.Name == name);
       }
 
-      if (stateLocation != null)
+      if (location != null)
       {
-        query = query.Where(entry => entry.StateLocation == stateLocation);
+        query = query.Where(entry => entry.Location == location);
       }
 
       return await query.ToListAsync();
