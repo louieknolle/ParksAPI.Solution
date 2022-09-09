@@ -22,35 +22,19 @@ namespace ParksAPI.Controllers
 
     // GET api/Parks
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Park>>> Get(string brand, string family, string model, int maximumPrice, int price)
+    public async Task<ActionResult<IEnumerable<Park>>> Get(string name, string stateLocation)
     {
       var query = _db.Parks.AsQueryable();
 
-      if (brand != null)
+      if (name != null)
       {
-        query = query.Where(entry => entry.Brand == brand);
+        query = query.Where(entry => entry.Name == name);
       }
 
-      if (family != null)
+      if (stateLocation != null)
       {
-        query = query.Where(entry => entry.Family == family);
+        query = query.Where(entry => entry.StateLocation == stateLocation);
       }
-
-      if (model != null)
-      {
-        query = query.Where(entry => entry.Model == model);
-      }
-
-      if (maximumPrice > 0)
-      {
-        query = query.Where(entry => entry.Price <= maximumPrice);
-      }
-
-      if (price > 0)
-      {
-        query = query.Where(entry => entry.Price == price);
-      }
-
 
       return await query.ToListAsync();
     }
