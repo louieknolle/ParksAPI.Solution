@@ -13,7 +13,7 @@ namespace ParksAPI.Models
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-        builder.Entity<Animal>()
+        builder.Entity<Park>()
             .HasData(
                 new Park { ParkId = 1, Name = "Acadia National Park", Type = "National", Location = "Maine" },
                 new Park { ParkId = 2, Name = "American Samoa National Park	", Type = "National", Location = "American Samoa Territory" },
