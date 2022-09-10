@@ -9,6 +9,7 @@ using ParksAPI.Models;
 
 namespace ParksAPI.Controllers
 {
+  [Produces("application/json")]
   [Route("api/[controller]")]
   [ApiController]
   public class ParksController : ControllerBase
@@ -20,7 +21,22 @@ namespace ParksAPI.Controllers
       _db = db;
     }
 
-    // GET api/Parks
+    /// <summary>
+    /// Parks List
+    /// </summary>
+    /// <remarks>
+    ///
+    /// Sample request:
+    /// GET /api/animals
+    ///     
+    /// </remarks>
+    /// 
+    /// <returns>Parks List</returns>
+    /// <response code="200">Returns Parks List</response>
+    /// <response code="400">If the park is null</response> 
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesDefaultResponseType]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Park>>> Get(string name, string location)
     {
@@ -39,7 +55,21 @@ namespace ParksAPI.Controllers
       return await query.ToListAsync();
     }
 
-    // GET: api/Parks/5
+    /// <summary>
+    /// Return individual park by its Id
+    /// </summary>
+    /// <remarks>
+    ///
+    /// Sample request:
+    /// GET /api/parks/1
+    ///     
+    /// </remarks>
+    /// 
+    /// <returns>Return park by its Id</returns>
+    /// <response code="200">Returns park</response>
+    /// <response code="400">If the park is null</response> 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesDefaultResponseType]
     [HttpGet("{id}")]
     public async Task<ActionResult<Park>> GetPark(int id)
     {
@@ -53,8 +83,28 @@ namespace ParksAPI.Controllers
         return park;
     }
 
-    // POST api/Parks
+    /// <summary>
+    /// Creates park.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     POST /Todo
+    ///     {
+    ///        "id": 1,
+    ///        "name": "Park1",
+    ///        "location": "Location1"
+    ///     }
+    ///
+    /// </remarks>
+    /// 
+    /// <returns>A newly created Park</returns>
+    /// <response code="201">Returns the newly created Park</response>
+    /// <response code="400">If the Park is null</response> 
+
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Park>> Post(Park park)
     {
       _db.Parks.Add(park);
@@ -63,7 +113,21 @@ namespace ParksAPI.Controllers
       return CreatedAtAction(nameof(GetPark), new { id = park.ParkId }, park);
     }
 
-    // PUT: api/Parks/5
+    /// <summary>
+    /// Update park 
+    /// </summary>
+    /// <remarks>
+    ///
+    /// Sample request:
+    /// PUT /api/parks/1 
+    ///     
+    /// </remarks>
+    /// 
+    /// <returns>updated park in API</returns>
+    /// <response code="201">park Updated Successfully</response>
+    /// <response code="400">If the park is null</response> 
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesDefaultResponseType]
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, Park park)
     {
@@ -93,7 +157,18 @@ namespace ParksAPI.Controllers
       return NoContent();
     }
 
-    // DELETE: api/Parks/5
+    /// <summary>
+    /// Delete Animal 
+    /// </summary>
+    /// <remarks>
+    ///
+    /// 
+    ///     
+    /// </remarks>
+    /// 
+    /// <returns>Animal List</returns>
+    /// <response code="201">Animal Deleted successfully</response>
+    /// <response code="400">If the animal is null</response> 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePark(int id)
     {
