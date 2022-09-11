@@ -116,20 +116,20 @@ namespace ParksAPI.Controllers
     [HttpGet("random")]
     public async Task<ActionResult<Park>> Random()
     {
-        using(HttpClient client = new HttpClient())
+      using(HttpClient client = new HttpClient())
+      {
+        var result = await client.GetAsync("https://localhost:5001/api/parks");  
+        if (result.IsSuccessStatusCode)  
         {
-            var result = await client.GetAsync("https://localhost:5001/api/parks");  
-            if (result.IsSuccessStatusCode)  
-            {
-                var parkListString = await result.Content.ReadAsStringAsync();     
-                var parkList = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<Park>>(parkListString);     
-                return parkList.ElementAt(new Random().Next(0, parkList.Count() - 1));  
-            }
-            else
-            {
-                return NotFound(); 
-            }
+            var parkListString = await result.Content.ReadAsStringAsync();     
+            var parkList = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<Park>>(parkListString);     
+            return parkList.ElementAt(new Random().Next(0, parkList.Count() - 1));  
         }
+        else
+        {
+            return NotFound(); 
+        }
+      }
     }
 
 
