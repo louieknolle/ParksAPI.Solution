@@ -38,7 +38,7 @@ namespace ParksAPI.Controllers
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Park>>> Get(string parkName, string location, string type)
+    public async Task<ActionResult<IEnumerable<Park>>> Get(string parkName, string location, string typeOfPark)
     {
       var query = _db.Parks.AsQueryable();
 
