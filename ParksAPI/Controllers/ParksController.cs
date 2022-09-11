@@ -13,6 +13,7 @@ using ParksAPI.Wrappers;
 using ParksAPI.Filter;
 using ParksAPI.Helpers;
 using ParksAPI.Services;
+using Microsoft.Extensions.Logging;
 
 
 namespace ParksAPI.Controllers
@@ -69,7 +70,7 @@ namespace ParksAPI.Controllers
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<IEnumerable<Park>>> Search(string parkName, string? location, string? typeOfPark)
+    public async Task<ActionResult<IEnumerable<Park>>> Search([FromQuery] PaginationFilter filter, string parkName, string? location, string? typeOfPark)
     {
       var query = _db.Parks.AsQueryable();
 
