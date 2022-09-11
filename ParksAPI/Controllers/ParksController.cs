@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParksAPI.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace ParksAPI.Controllers
 {
@@ -60,19 +63,33 @@ namespace ParksAPI.Controllers
       return await query.ToListAsync();
     }
 
-    [HttpGet("{search}")]
+    /// <summary>
+    /// return park(s) matching search query
+    /// </summary>
+    /// <remarks>
+    ///
+    /// Sample request:
+    /// GET /api/parks/search?location=oregon
+    ///     
+    /// </remarks>
+    /// 
+    /// <returns>Matching entries list</returns>
+    /// <response code="200">Returns Matching Entries</response>
+    /// <response code="400">If the park is null</response> 
+
+    [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<Park>>> Search(string parkName, string? location, string? typeOfPark)
     {
       var query = _db.Parks.AsQueryable();
 
       if (parkName != null)
       {
-        query = query.Where(entry => entry.ParkName == parkName);
+        query = query.Where(entry => entry.ParkName.Contains(parkName));
       } 
 
       if (location != null)
       {
-        query = query.Where(entry => entry.Location == location);
+        query = query.Where(entry => entry.Location.Contains(location));
       }
 
        if (typeOfPark != null)
@@ -82,6 +99,39 @@ namespace ParksAPI.Controllers
       
       return await query.ToListAsync();
     }
+
+    /// <summary>
+    /// Random park
+    /// </summary>
+    /// <remarks>
+    ///
+    /// Sample request:
+    /// GET /api/animals/random
+    ///     
+    /// </remarks>
+    /// 
+    /// <returns>random park</returns>
+    /// <response code="200">Returns random park</response>
+    /// <response code="400">If the park is null</response> 
+    [HttpGet("random")]
+    public async Task<ActionResult<Park>> Random()
+    {
+        using(HttpClient client = new HttpClient())
+        {
+            var result = await client.GetAsync("https://localhost:5001/api/parks");  
+            if (result.IsSuccessStatusCode)  
+            {
+                var parkListString = await result.Content.ReadAsStringAsync();     
+                var parkList = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<Park>>(parkListString);     
+                return parkList.ElementAt(new Random().Next(0, parkList.Count() - 1));  
+            }
+            else
+            {
+                return NotFound(); 
+            }
+        }
+    }
+
 
     /// <summary>
     /// Return individual park by its Id
