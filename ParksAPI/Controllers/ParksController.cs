@@ -38,13 +38,13 @@ namespace ParksAPI.Controllers
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Park>>> Get(string name, string location)
+    public async Task<ActionResult<IEnumerable<Park>>> Get(string parkName, string location, string type)
     {
       var query = _db.Parks.AsQueryable();
 
-      if (name != null)
+      if (parkName != null)
       {
-        query = query.Where(entry => entry.Name == name);
+        query = query.Where(entry => entry.ParkName == parkName);
       }
 
       if (location != null)
@@ -52,6 +52,34 @@ namespace ParksAPI.Controllers
         query = query.Where(entry => entry.Location == location);
       }
 
+      if (typeOfPark != null)
+      {
+        query = query.Where(entry => entry.TypeOfPark == typeOfPark);
+      }
+
+      return await query.ToListAsync();
+    }
+
+    [HttpGet("{search}")]
+    public async Task<ActionResult<IEnumerable<Park>>> Search(string parkName, string? location, string? typeOfPark)
+    {
+      var query = _db.Parks.AsQueryable();
+
+      if (parkName != null)
+      {
+        query = query.Where(entry => entry.ParkName == parkName);
+      } 
+
+      if (location != null)
+      {
+        query = query.Where(entry => entry.Location == location);
+      }
+
+       if (typeOfPark != null)
+      {
+        query = query.Where(entry => entry.TypeOfPark == typeOfPark);
+      }
+      
       return await query.ToListAsync();
     }
 
