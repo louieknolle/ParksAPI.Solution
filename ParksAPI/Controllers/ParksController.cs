@@ -9,6 +9,11 @@ using ParksAPI.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
+using ParksAPI.Wrappers;
+using ParksAPI.Filter;
+using ParksAPI.Helpers;
+using ParksAPI.Services;
+
 
 namespace ParksAPI.Controllers
 {
@@ -17,31 +22,21 @@ namespace ParksAPI.Controllers
   [ApiController]
   public class ParksController : ControllerBase
   {
+    private readonly ILogger<ParksController> _logger;
     private readonly ParksAPIContext _db;
+    private readonly IUriService uriService;
 
-    public ParksController(ParksAPIContext db)
+    public ParksController(ILogger<ParksController> logger, ParksAPIContext db, IUriService uriService)
     {
+      _logger = logger;
       _db = db;
+      this.uriService = uriService;
     }
-
-    /// <summary>
-    /// Parks List
-    /// </summary>
-    /// <remarks>
-    ///
-    /// Sample request:
-    /// GET /api/animals
-    ///     
-    /// </remarks>
-    /// 
-    /// <returns>Parks List</returns>
-    /// <response code="200">Returns Parks List</response>
-    /// <response code="400">If the park is null</response> 
 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Park>>> Get(string parkName, string location, string typeOfPark)
+    public async Task<ActionResult<IEnumerable<Park>>> Get([FromQuery] PaginationFilter filter, string parkName, string location, string typeOfPark)
     {
       var query = _db.Parks.AsQueryable();
 
@@ -60,22 +55,18 @@ namespace ParksAPI.Controllers
         query = query.Where(entry => entry.TypeOfPark == typeOfPark);
       }
 
-      return await query.ToListAsync();
-    }
+      var route = Request.Path.Value;
+      var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+      var pagedData = await query
+        .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+        .Take(validFilter.PageSize)
+        .ToListAsync();
+      var totalRecords = await query.CountAsync();
+      var pagedReponse = PaginationHelper.CreatePagedReponse<Park>(pagedData, validFilter, totalRecords, uriService, route);
+      return Ok(pagedReponse);
 
-    /// <summary>
-    /// return park(s) matching search query
-    /// </summary>
-    /// <remarks>
-    ///
-    /// Sample request:
-    /// GET /api/parks/search?location=oregon
-    ///     
-    /// </remarks>
-    /// 
-    /// <returns>Matching entries list</returns>
-    /// <response code="200">Returns Matching Entries</response>
-    /// <response code="400">If the park is null</response> 
+      // return await query.ToListAsync();
+    }
 
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<Park>>> Search(string parkName, string? location, string? typeOfPark)
@@ -96,23 +87,20 @@ namespace ParksAPI.Controllers
       {
         query = query.Where(entry => entry.TypeOfPark == typeOfPark);
       }
+
+      var route = Request.Path.Value;
+      var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+      var pagedData = await query
+        .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+        .Take(validFilter.PageSize)
+        .ToListAsync();
+      var totalRecords = await query.CountAsync();
+      var pagedReponse = PaginationHelper.CreatePagedReponse<Park>(pagedData, validFilter, totalRecords, uriService, route);
+      return Ok(pagedReponse);
       
-      return await query.ToListAsync();
+      // return await query.ToListAsync();
     }
 
-    /// <summary>
-    /// Random park
-    /// </summary>
-    /// <remarks>
-    ///
-    /// Sample request:
-    /// GET /api/animals/random
-    ///     
-    /// </remarks>
-    /// 
-    /// <returns>random park</returns>
-    /// <response code="200">Returns random park</response>
-    /// <response code="400">If the park is null</response> 
     [HttpGet("random")]
     public async Task<ActionResult<Park>> Random()
     {
@@ -132,20 +120,6 @@ namespace ParksAPI.Controllers
       }
     }
 
-
-    /// <summary>
-    /// Return individual park by its Id
-    /// </summary>
-    /// <remarks>
-    ///
-    /// Sample request:
-    /// GET /api/parks/1
-    ///     
-    /// </remarks>
-    /// 
-    /// <returns>Return park by its Id</returns>
-    /// <response code="200">Returns park</response>
-    /// <response code="400">If the park is null</response> 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesDefaultResponseType]
     [HttpGet("{id}")]
@@ -161,25 +135,6 @@ namespace ParksAPI.Controllers
         return park;
     }
 
-    /// <summary>
-    /// Creates park.
-    /// </summary>
-    /// <remarks>
-    /// Sample request:
-    ///
-    ///     POST /Todo
-    ///     {
-    ///        "id": 1,
-    ///        "name": "Park1",
-    ///        "location": "Location1"
-    ///     }
-    ///
-    /// </remarks>
-    /// 
-    /// <returns>A newly created Park</returns>
-    /// <response code="201">Returns the newly created Park</response>
-    /// <response code="400">If the Park is null</response> 
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -191,19 +146,6 @@ namespace ParksAPI.Controllers
       return CreatedAtAction(nameof(GetPark), new { id = park.ParkId }, park);
     }
 
-    /// <summary>
-    /// Update park 
-    /// </summary>
-    /// <remarks>
-    ///
-    /// Sample request:
-    /// PUT /api/parks/1 
-    ///     
-    /// </remarks>
-    /// 
-    /// <returns>updated park in API</returns>
-    /// <response code="201">park Updated Successfully</response>
-    /// <response code="400">If the park is null</response> 
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesDefaultResponseType]
     [HttpPut("{id}")]
@@ -235,18 +177,6 @@ namespace ParksAPI.Controllers
       return NoContent();
     }
 
-    /// <summary>
-    /// Delete Animal 
-    /// </summary>
-    /// <remarks>
-    ///
-    /// 
-    ///     
-    /// </remarks>
-    /// 
-    /// <returns>Animal List</returns>
-    /// <response code="201">Animal Deleted successfully</response>
-    /// <response code="400">If the animal is null</response> 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePark(int id)
     {
