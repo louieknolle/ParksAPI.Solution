@@ -78,7 +78,7 @@ namespace ParksAPI
                 });
             }
 
-            // app.UseHttpsRedirection();
+            app.UseHttpsRedirection();   
 
             app.UseRouting();
 

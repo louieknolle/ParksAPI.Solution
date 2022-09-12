@@ -65,8 +65,6 @@ namespace ParksAPI.Controllers
       var totalRecords = await query.CountAsync();
       var pagedReponse = PaginationHelper.CreatePagedReponse<Park>(pagedData, validFilter, totalRecords, uriService, route);
       return Ok(pagedReponse);
-
-      // return await query.ToListAsync();
     }
 
     [HttpGet("search")]
@@ -98,8 +96,6 @@ namespace ParksAPI.Controllers
       var totalRecords = await query.CountAsync();
       var pagedReponse = PaginationHelper.CreatePagedReponse<Park>(pagedData, validFilter, totalRecords, uriService, route);
       return Ok(pagedReponse);
-      
-      // return await query.ToListAsync();
     }
 
     [HttpGet("random")]
