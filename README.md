@@ -41,16 +41,21 @@ A web API that stores national and OR state park information such as name, locat
 
 * _Next run the program with `$dotnet run` and a server will be launched in your default browser_
 * _Open the project by navigating your browser to http://localhost:5000/api/Parks or http://localhost:5001/api/Parks_
-* _The following routes can be used and tested in Postman or using Swagger at _
+* _The following routes can be used and tested in Postman or using Swagger at https://localhost:5001/index.html_
+
+<img src="ParksAPI/swaggerParksAPI.PNG" alt="screenshot of swagger documentation for API endpoints" width="100%">
 
 
 ## Known Bugs
 
-_none_
+Would like to add:
+* _Views client for API_
+* _API authentication_
+* _Enable CORS_
 
 ## License
 
 _MIT_
 
-**Copyright (c) _August 2022_ _Louie Knolle_**
+**Copyright (c) _September 2022_ _Louie Knolle_**
 **Please contact me for any contribution or questions: [email](mailto:knollelw@gmail.com)**
